@@ -18,4 +18,5 @@ public class Token extends BaseModel{
     private Date expiryDate;
 
 
+
 }

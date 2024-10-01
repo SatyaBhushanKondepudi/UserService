@@ -50,18 +50,26 @@ public class UserService {
     }
 
     public void logout(String tokenValue) {
-        tokenRepository.deleteByValue(tokenValue);
-    }
-    public User validateToken(String tokenValue) {
-        Optional<Token> optionalToken = tokenRepository.findByValue(tokenValue);
+        Optional<Token> optionalToken = tokenRepository.findByValueAndDeletedAndExpiryAtGreaterThan(
+                tokenValue, false, new Date());
         if(optionalToken.isEmpty()){
             throw new RuntimeException("Invalid token");
         }
         Token token = optionalToken.get();
-        if(token.getExpiryDate().before(new Date())){
-            throw new RuntimeException("Token expired");
+        token.setDeleted(true); // Mark the token as deleted
+        tokenRepository.save(token);
+    }
+    public User validateToken(String tokenValue) {
+        //Findout token with the value present in the Db or not
+        // check if the token is expired or not
+        Optional<Token> optionalToken = tokenRepository.findByValueAndDeletedAndExpiryAtGreaterThan(
+                tokenValue, false, new Date());
+        if(optionalToken.isEmpty()){
+//            throw new RuntimeException("Invalid token");
+            return  null ;
         }
-        return token.getUser();
+//        return token.getUser();
+        return optionalToken.get().getUser();
     }
 
 

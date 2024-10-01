@@ -15,6 +15,10 @@ public class UserDto {
     private List<Role> roles;
 
     public static UserDto from(User user){
+        if(user == null){
+            return null;
+        }
+
         UserDto userDto = new UserDto();
 
         userDto.setName(user.getName());
