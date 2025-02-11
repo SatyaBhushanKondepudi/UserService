@@ -1,5 +1,6 @@
 package com.satyabhushan.userservice.services;
 
+import com.satyabhushan.userservice.Exceptions.TokenInvalidException;
 import com.satyabhushan.userservice.models.Token;
 import com.satyabhushan.userservice.models.User;
 import com.satyabhushan.userservice.repositories.TokenRepository;
@@ -49,11 +50,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void logout(String tokenValue) {
+    public void logout(String tokenValue) throws TokenInvalidException {
         Optional<Token> optionalToken = tokenRepository.findByValueAndDeletedAndExpiryAtGreaterThan(
                 tokenValue, false, new Date());
         if(optionalToken.isEmpty()){
-            throw new RuntimeException("Invalid token");
+            throw new TokenInvalidException("Invalid token");
         }
         Token token = optionalToken.get();
         token.setDeleted(true); // Mark the token as deleted
@@ -80,7 +81,7 @@ public class UserService {
         LocalDate today = LocalDate.now();
         LocalDate thirtyDaysLater = today.plusDays(30);
         Date expiryDate = Date.from(thirtyDaysLater.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        token.setExpiryDate(expiryDate);
+        token.setExpiryAt(expiryDate);
         return token;
     }
 }
