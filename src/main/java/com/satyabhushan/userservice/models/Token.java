@@ -10,15 +10,11 @@ import java.util.Date;
 
 @Getter
 @Setter
-@Entity
+@Entity(name = "tokens")
 public class Token extends BaseModel{
     private String value;
     @ManyToOne
     private User user ;
     private boolean deleted;
-
     private Date expiryAt;
-
-
-
 }

@@ -13,6 +13,8 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     void deleteByValue(String tokenValue);
 
+    Optional<Token> findByValue(String value);
+
     Optional<Token> findByValueAndDeletedAndExpiryAtGreaterThan(String tokenValue,
                                                                 boolean deleted,
                                                                 Date currentTime);
@@ -25,4 +27,5 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     @Override
     Token save(Token token);
+    //Update + Insert => Upsert
 }
