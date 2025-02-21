@@ -1,13 +1,17 @@
 package com.satyabhushan.userservice.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.satyabhushan.userservice.Exceptions.UnAuthorizedException;
 import com.satyabhushan.userservice.Exceptions.UserNotFoundException;
+import com.satyabhushan.userservice.dtos.SendEmailDto;
 import com.satyabhushan.userservice.models.Token;
 import com.satyabhushan.userservice.models.User;
 import com.satyabhushan.userservice.repositories.TokenRepository;
 import com.satyabhushan.userservice.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,8 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository ;
     private BCryptPasswordEncoder passwordEncoder;
     private TokenRepository tokenRepository;
+    private KafkaTemplate<String, String> kafkaTemplate;
+    private ObjectMapper objectMapper;
 
 
     @Override
@@ -39,9 +45,18 @@ public class UserServiceImpl implements UserService{
         user.setHashedPassword(passwordEncoder.encode(password));
         user.setRoles(new ArrayList<>());
 
+        SendEmailDto emailDto = new SendEmailDto();
+        emailDto.setTo(email);
+        emailDto.setSubject("Welcome to the User Service");
+        emailDto.setBody("We are happy to have you on board.");
+
         //Before returning the object, we should push an sendEmail event
         // to Kafka so that EmailService can read the event and send and Email.
-
+        try {
+            kafkaTemplate.send("sendEmail", objectMapper.writeValueAsString(emailDto));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
         user = userRepository.save(user);
         return user;
