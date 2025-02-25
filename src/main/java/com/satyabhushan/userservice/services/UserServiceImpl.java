@@ -11,6 +11,7 @@ import com.satyabhushan.userservice.repositories.TokenRepository;
 import com.satyabhushan.userservice.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository ;
     private BCryptPasswordEncoder passwordEncoder;
     private TokenRepository tokenRepository;
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String , String> kafkaTemplate;
     private ObjectMapper objectMapper;
 
 
